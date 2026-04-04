@@ -63,6 +63,12 @@ const Sell = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const validationError = validateImageFile(file);
+      if (validationError) {
+        toast({ title: "Invalid file", description: validationError, variant: "destructive" });
+        e.target.value = "";
+        return;
+      }
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
