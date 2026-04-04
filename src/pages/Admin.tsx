@@ -90,9 +90,10 @@ const Admin = () => {
         description: "The seller will be notified.",
       });
     } catch (error: any) {
+      console.error("Reject error:", error);
       toast({
         title: "Failed to reject",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }
