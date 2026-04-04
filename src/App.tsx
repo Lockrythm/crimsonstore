@@ -6,18 +6,20 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import Books from "./pages/Books";
 import Marketplace from "./pages/Marketplace";
 import Sell from "./pages/Sell";
 import Profile from "./pages/Profile";
-import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
 import Settings from "./pages/Settings";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+
+const Admin = lazy(() => import("./pages/Admin"));
 
 const queryClient = new QueryClient();
 
