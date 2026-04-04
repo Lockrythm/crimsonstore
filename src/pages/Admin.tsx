@@ -124,9 +124,10 @@ const Admin = () => {
         description: "The item has been permanently removed.",
       });
     } catch (error: any) {
+      console.error("Delete error:", error);
       toast({
         title: "Failed to delete",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }

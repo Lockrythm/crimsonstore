@@ -38,7 +38,7 @@ const App = () => (
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/sell" element={<Sell />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin" element={<Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-primary">Loading...</div></div>}><Admin /></Suspense>} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/product/:id" element={<ProductDetail />} />
