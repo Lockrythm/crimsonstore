@@ -447,7 +447,7 @@ const Settings = () => {
             <div 
               className="flex items-center justify-between py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer"
               onClick={() => {
-                window.open("https://wa.me/923126203644?text=Hi! I want to report a problem with Crimson app.", "_blank");
+                window.open(`https://wa.me/${adminPhone || ""}?text=${encodeURIComponent("Hi! I want to report a problem with Crimson app.")}`, "_blank");
               }}
             >
               <span className="text-sm text-foreground">Report a Problem</span>
