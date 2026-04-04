@@ -73,9 +73,10 @@ const Admin = () => {
         description: "The item is now visible in the marketplace.",
       });
     } catch (error: any) {
+      console.error("Approve error:", error);
       toast({
         title: "Failed to approve",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }
@@ -89,9 +90,10 @@ const Admin = () => {
         description: "The seller will be notified.",
       });
     } catch (error: any) {
+      console.error("Reject error:", error);
       toast({
         title: "Failed to reject",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }
@@ -105,9 +107,10 @@ const Admin = () => {
         description: "The item is back in pending review.",
       });
     } catch (error: any) {
+      console.error("Restore error:", error);
       toast({
         title: "Failed to restore",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }
@@ -121,9 +124,10 @@ const Admin = () => {
         description: "The item has been permanently removed.",
       });
     } catch (error: any) {
+      console.error("Delete error:", error);
       toast({
         title: "Failed to delete",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }

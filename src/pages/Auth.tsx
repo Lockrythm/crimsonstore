@@ -6,9 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
-
-const SIGNUP_KEY = "GCSAHIWAL04";
 
 const emailSchema = z.string().email("Invalid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
@@ -22,6 +21,8 @@ const Auth = () => {
   const [signupKey, setSignupKey] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [errors, setErrors] = useState<{ email?: string; password?: string; username?: string; signupKey?: string }>({});
   
   const { signIn, signUp, user, loading } = useAuth();
@@ -33,6 +34,9 @@ const Auth = () => {
       navigate("/");
     }
   }, [user, loading, navigate]);
+
+  // Check rate limit lock
+  const isLocked = lockedUntil && Date.now() < lockedUntil;
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string; username?: string; signupKey?: string } = {};
@@ -62,8 +66,8 @@ const Auth = () => {
         }
       }
       
-      if (signupKey !== SIGNUP_KEY) {
-        newErrors.signupKey = "Invalid signup key";
+      if (!signupKey.trim()) {
+        newErrors.signupKey = "Signup key is required";
       }
     }
     
@@ -71,9 +75,34 @@ const Auth = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const validateSignupKeyServer = async (): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-signup-key', {
+        body: { key: signupKey },
+      });
+      if (error || !data?.valid) {
+        setErrors(prev => ({ ...prev, signupKey: "Invalid signup key" }));
+        return false;
+      }
+      return true;
+    } catch {
+      setErrors(prev => ({ ...prev, signupKey: "Could not validate key. Try again." }));
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (isLocked) {
+      toast({
+        title: "Too many attempts",
+        description: "Please wait 30 seconds before trying again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!validateForm()) return;
     
     setIsSubmitting(true);
@@ -82,14 +111,22 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
+          const attempts = failedAttempts + 1;
+          setFailedAttempts(attempts);
+          if (attempts >= 3) {
+            setLockedUntil(Date.now() + 30000);
+            setTimeout(() => {
+              setLockedUntil(null);
+              setFailedAttempts(0);
+            }, 30000);
+          }
           toast({
             title: "Sign in failed",
-            description: error.message === "Invalid login credentials" 
-              ? "Invalid email or password" 
-              : error.message,
+            description: "Invalid email or password.",
             variant: "destructive",
           });
         } else {
+          setFailedAttempts(0);
           toast({
             title: "Welcome back!",
             description: "You have been signed in.",
@@ -97,13 +134,20 @@ const Auth = () => {
           navigate("/");
         }
       } else {
+        // Validate signup key server-side
+        const keyValid = await validateSignupKeyServer();
+        if (!keyValid) {
+          setIsSubmitting(false);
+          return;
+        }
+
         const { error } = await signUp(email, password, username);
         if (error) {
           toast({
             title: "Sign up failed",
             description: error.message.includes("already registered")
               ? "This email is already registered"
-              : error.message,
+              : "Something went wrong. Please try again.",
             variant: "destructive",
           });
         } else {
@@ -164,6 +208,7 @@ const Auth = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="bg-card border-border focus:border-primary"
+                  maxLength={20}
                 />
                 {errors.username && (
                   <p className="text-destructive text-xs mt-1">{errors.username}</p>
@@ -183,6 +228,7 @@ const Auth = () => {
                   value={signupKey}
                   onChange={(e) => setSignupKey(e.target.value)}
                   className="bg-card border-border focus:border-primary"
+                  maxLength={50}
                 />
                 {errors.signupKey && (
                   <p className="text-destructive text-xs mt-1">{errors.signupKey}</p>
@@ -201,6 +247,7 @@ const Auth = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-card border-border focus:border-primary"
+              maxLength={255}
             />
             {errors.email && (
               <p className="text-destructive text-xs mt-1">{errors.email}</p>
@@ -218,6 +265,7 @@ const Auth = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="bg-card border-border focus:border-primary pr-10"
+                maxLength={128}
               />
               <button
                 type="button"
@@ -234,10 +282,16 @@ const Auth = () => {
 
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!isLocked}
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-crimson-glow"
           >
-            {isSubmitting ? "Loading..." : isLogin ? "Enter" : "Join the Coven"}
+            {isLocked
+              ? "Too many attempts — wait 30s"
+              : isSubmitting
+              ? "Loading..."
+              : isLogin
+              ? "Enter"
+              : "Join the Coven"}
           </Button>
         </form>
 

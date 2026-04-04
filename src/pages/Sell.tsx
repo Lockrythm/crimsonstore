@@ -13,6 +13,7 @@ import { useCreateProduct } from "@/hooks/useProducts";
 import { uploadProductImage } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { validateImageFile } from "@/lib/fileValidation";
 
 type ListingType = "book" | "item" | "service" | "request";
 
@@ -62,6 +63,12 @@ const Sell = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const validationError = validateImageFile(file);
+      if (validationError) {
+        toast({ title: "Invalid file", description: validationError, variant: "destructive" });
+        e.target.value = "";
+        return;
+      }
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -134,9 +141,10 @@ const Sell = () => {
       setImagePreview(null);
       setImageFile(null);
     } catch (error: any) {
+      console.error("Create listing error:", error);
       toast({
         title: "Failed to create listing",
-        description: error.message || "Something went wrong",
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -268,6 +276,7 @@ const Sell = () => {
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="bg-card border-border focus:border-primary"
+              maxLength={200}
               required
             />
           </motion.div>
@@ -340,6 +349,7 @@ const Sell = () => {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="bg-card border-border focus:border-primary min-h-[120px]"
+              maxLength={5000}
               required
             />
           </motion.div>
@@ -358,6 +368,7 @@ const Sell = () => {
               value={formData.contact}
               onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
               className="bg-card border-border focus:border-primary"
+              maxLength={100}
             />
             {formData.contact && (
               <div className="flex items-center gap-2 mt-3 p-3 rounded-lg bg-card border border-border">

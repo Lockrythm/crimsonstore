@@ -10,8 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-
-const ADMIN_PHONE = "03126203644";
+import { useAppSetting } from "@/hooks/useAppSettings";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +20,7 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const [addedToCart, setAddedToCart] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { data: adminPhone } = useAppSetting("admin_phone");
 
   useEffect(() => {
     if (!user) return;
@@ -71,12 +71,12 @@ const ProductDetail = () => {
   };
 
   const handleContactAdmin = () => {
-    if (!product) return;
+    if (!product || !adminPhone) return;
     
     const message = encodeURIComponent(
       `Hi! I'm interested in the service: "${product.title}" listed on Crimson. Could you help me with more details?`
     );
-    window.open(`https://wa.me/${ADMIN_PHONE}?text=${message}`, '_blank');
+    window.open(`https://wa.me/${adminPhone}?text=${message}`, '_blank');
   };
 
   if (isLoading) {
@@ -109,7 +109,6 @@ const ProductDetail = () => {
   return (
     <AppLayout>
       <div className="pb-24">
-        {/* Header */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -126,7 +125,6 @@ const ProductDetail = () => {
           </Button>
         </motion.div>
 
-        {/* Product Image */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -149,26 +147,22 @@ const ProductDetail = () => {
           </div>
         </motion.div>
 
-        {/* Product Info */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="p-4 space-y-4"
         >
-          {/* Category Badge */}
           {product.categories?.name && (
             <span className="inline-block bg-primary/20 text-primary text-sm px-3 py-1 rounded-full">
               {product.categories.name}
             </span>
           )}
 
-          {/* Title */}
           <h1 className="text-2xl font-gothic text-foreground">
             {product.title}
           </h1>
 
-          {/* Price */}
           <div className="flex items-center gap-3">
             {isService && Number(product.price) === 0 ? (
               <span className="text-xl font-semibold text-muted-foreground">
@@ -181,12 +175,10 @@ const ProductDetail = () => {
             )}
           </div>
 
-          {/* Seller */}
           <p className="text-muted-foreground">
             Listed by <span className="text-foreground">{product.profiles?.username || "Unknown"}</span>
           </p>
 
-          {/* Description */}
           <div className="pt-4 border-t border-border">
             <h3 className="text-lg font-semibold mb-2">Description</h3>
             <p className="text-muted-foreground leading-relaxed">
@@ -194,7 +186,6 @@ const ProductDetail = () => {
             </p>
           </div>
 
-          {/* Contact Info */}
           {product.contact_info && (product.contact_public || isAdmin) && (
             <div className="pt-4 border-t border-border">
               <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
@@ -207,7 +198,6 @@ const ProductDetail = () => {
             </div>
           )}
 
-          {/* Action Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -217,6 +207,7 @@ const ProductDetail = () => {
             {isService ? (
               <Button
                 onClick={handleContactAdmin}
+                disabled={!adminPhone}
                 className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90 crimson-glow"
               >
                 <MessageSquare size={24} className="mr-2" />
@@ -243,7 +234,6 @@ const ProductDetail = () => {
             )}
           </motion.div>
 
-          {/* Notice */}
           <p className="text-sm text-muted-foreground text-center pt-2">
             {isService 
               ? "Connect with our admin to discuss this service." 

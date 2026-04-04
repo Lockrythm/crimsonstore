@@ -11,12 +11,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { uploadProductImage } from "@/lib/storage";
 import { useTheme } from "@/hooks/useTheme";
+import { useAppSetting } from "@/hooks/useAppSettings";
+import { validateImageFile } from "@/lib/fileValidation";
 
 const Settings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, profile, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { data: adminPhone } = useAppSetting("admin_phone");
   const [notifications, setNotifications] = useState(() => {
     const stored = localStorage.getItem("crimson-notifications");
     return stored !== null ? stored === "true" : true;
@@ -47,6 +50,12 @@ const Settings = () => {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const validationError = validateImageFile(file);
+      if (validationError) {
+        toast({ title: "Invalid file", description: validationError, variant: "destructive" });
+        e.target.value = "";
+        return;
+      }
       setAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -91,9 +100,10 @@ const Settings = () => {
       // Refresh the page to show updated profile
       window.location.reload();
     } catch (error: any) {
+      console.error("Profile update error:", error);
       toast({
         title: "Error updating profile",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -124,9 +134,10 @@ const Settings = () => {
         description: `A password reset link was sent to ${user.email}.`,
       });
     } catch (error: any) {
+      console.error("Password reset error:", error);
       toast({
         title: "Could not send reset link",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -428,7 +439,7 @@ const Settings = () => {
             <div 
               className="flex items-center justify-between py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer"
               onClick={() => {
-                window.open("https://wa.me/923126203644?text=Hi! I need help with Crimson app.", "_blank");
+                window.open(`https://wa.me/${adminPhone || ""}?text=${encodeURIComponent("Hi! I need help with Crimson app.")}`, "_blank");
               }}
             >
               <span className="text-sm text-foreground">Contact Support</span>
@@ -436,7 +447,7 @@ const Settings = () => {
             <div 
               className="flex items-center justify-between py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer"
               onClick={() => {
-                window.open("https://wa.me/923126203644?text=Hi! I want to report a problem with Crimson app.", "_blank");
+                window.open(`https://wa.me/${adminPhone || ""}?text=${encodeURIComponent("Hi! I want to report a problem with Crimson app.")}`, "_blank");
               }}
             >
               <span className="text-sm text-foreground">Report a Problem</span>
