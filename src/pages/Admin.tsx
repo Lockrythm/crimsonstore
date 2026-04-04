@@ -73,9 +73,10 @@ const Admin = () => {
         description: "The item is now visible in the marketplace.",
       });
     } catch (error: any) {
+      console.error("Approve error:", error);
       toast({
         title: "Failed to approve",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }
