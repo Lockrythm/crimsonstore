@@ -134,9 +134,10 @@ const Settings = () => {
         description: `A password reset link was sent to ${user.email}.`,
       });
     } catch (error: any) {
+      console.error("Password reset error:", error);
       toast({
         title: "Could not send reset link",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
