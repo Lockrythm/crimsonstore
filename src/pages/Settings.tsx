@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { uploadProductImage } from "@/lib/storage";
 import { useTheme } from "@/hooks/useTheme";
+import { useAppSetting } from "@/hooks/useAppSettings";
+import { validateImageFile } from "@/lib/fileValidation";
 
 const Settings = () => {
   const navigate = useNavigate();
