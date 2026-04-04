@@ -141,9 +141,10 @@ const Sell = () => {
       setImagePreview(null);
       setImageFile(null);
     } catch (error: any) {
+      console.error("Create listing error:", error);
       toast({
         title: "Failed to create listing",
-        description: error.message || "Something went wrong",
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
