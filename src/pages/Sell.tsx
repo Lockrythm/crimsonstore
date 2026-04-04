@@ -349,6 +349,7 @@ const Sell = () => {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="bg-card border-border focus:border-primary min-h-[120px]"
+              maxLength={5000}
               required
             />
           </motion.div>
