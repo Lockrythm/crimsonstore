@@ -100,9 +100,10 @@ const Settings = () => {
       // Refresh the page to show updated profile
       window.location.reload();
     } catch (error: any) {
+      console.error("Profile update error:", error);
       toast({
         title: "Error updating profile",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
