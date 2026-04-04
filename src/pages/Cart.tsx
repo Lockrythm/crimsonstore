@@ -8,8 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppSetting } from "@/hooks/useAppSettings";
 
-const ADMIN_PHONE = "923126203644"; // Pakistan format for WhatsApp
 const DELIVERY_FEE = 250;
 
 const Cart = () => {
@@ -18,6 +18,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const [homeDelivery, setHomeDelivery] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("");
+  const { data: adminPhone } = useAppSetting("admin_phone");
 
   const finalTotal = homeDelivery ? totalPrice + DELIVERY_FEE : totalPrice;
 
@@ -53,8 +54,9 @@ const Cart = () => {
   };
 
   const handleContactAdmin = () => {
+    if (!adminPhone) return;
     const message = generateWhatsAppMessage();
-    const whatsappUrl = `https://wa.me/${ADMIN_PHONE}?text=${message}`;
+    const whatsappUrl = `https://wa.me/${adminPhone}?text=${message}`;
     window.open(whatsappUrl, "_blank");
   };
 
@@ -212,6 +214,7 @@ const Cart = () => {
                 value={deliveryAddress}
                 onChange={(e) => setDeliveryAddress(e.target.value)}
                 className="bg-background"
+                maxLength={500}
               />
             </motion.div>
           )}
@@ -262,6 +265,7 @@ const Cart = () => {
         >
           <Button
             onClick={handleContactAdmin}
+            disabled={!adminPhone}
             className="w-full h-14 text-lg font-semibold bg-green-600 hover:bg-green-700"
           >
             <MessageCircle size={24} className="mr-2" />
