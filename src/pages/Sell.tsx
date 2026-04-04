@@ -368,6 +368,7 @@ const Sell = () => {
               value={formData.contact}
               onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
               className="bg-card border-border focus:border-primary"
+              maxLength={100}
             />
             {formData.contact && (
               <div className="flex items-center gap-2 mt-3 p-3 rounded-lg bg-card border border-border">
