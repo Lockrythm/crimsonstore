@@ -107,9 +107,10 @@ const Admin = () => {
         description: "The item is back in pending review.",
       });
     } catch (error: any) {
+      console.error("Restore error:", error);
       toast({
         title: "Failed to restore",
-        description: error.message,
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }
