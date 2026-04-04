@@ -13,6 +13,7 @@ import { useCreateProduct } from "@/hooks/useProducts";
 import { uploadProductImage } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { validateImageFile } from "@/lib/fileValidation";
 
 type ListingType = "book" | "item" | "service" | "request";
 
