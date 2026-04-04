@@ -19,6 +19,7 @@ const Settings = () => {
   const { toast } = useToast();
   const { user, profile, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { data: adminPhone } = useAppSetting("admin_phone");
   const [notifications, setNotifications] = useState(() => {
     const stored = localStorage.getItem("crimson-notifications");
     return stored !== null ? stored === "true" : true;
