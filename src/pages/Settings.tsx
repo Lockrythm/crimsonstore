@@ -50,6 +50,12 @@ const Settings = () => {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const validationError = validateImageFile(file);
+      if (validationError) {
+        toast({ title: "Invalid file", description: validationError, variant: "destructive" });
+        e.target.value = "";
+        return;
+      }
       setAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
